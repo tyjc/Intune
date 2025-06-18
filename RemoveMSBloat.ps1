@@ -39,18 +39,10 @@ $Packages = @(
     "Microsoft.ZuneMusic"
     "Microsoft.ZuneVideo"
 )
+
 $InstalledPackages = Get-AppxPackage -AllUsers | Where-Object { ($Packages -contains $_.Name) }
 $ProvisionedPackages = Get-AppxProvisionedPackage -Online | Where-Object { ($Packages -contains $_.DisplayName) }
-
-#MS installed bloat programs
-$Programs = @(
-    "Microsoft 365 - en-us"
-    "Office 16 Click-to-Run Extensibility Component"
-    "Office 16 Click-to-Run Licensing Component"
-    "Microsoft OneDrive"
-)
-$InstalledPrograms = Get-Package | Where-Object { $Programs -contains $_.Name }
-
+ 
 ForEach ($ProvPackage in $ProvisionedPackages) {
 
     Try {
@@ -65,15 +57,5 @@ ForEach ($AppxPackage in $InstalledPackages) {
         $Null = Remove-AppxPackage -Package $AppxPackage.PackageFullName -AllUsers -ErrorAction Stop
     }
     Catch { Write-Warning -Message "Failed to remove provisioned package: [$($AppxPackage.DisplayName)]" }
-}
-
-$InstalledPrograms | ForEach-Object {
-
-    Write-Host -Object "Attempting to uninstall: [$($_.Name)]..."
-    Try {
-        $Null = $_ | Uninstall-Package -AllVersions -Force -ErrorAction Stop
-        Write-Host -Object "Successfully uninstalled: [$($_.Name)]"
-    }
-    Catch { Write-Warning -Message "Failed to uninstall: [$($_.Name)]" }
 }
 Stop-Transcript
